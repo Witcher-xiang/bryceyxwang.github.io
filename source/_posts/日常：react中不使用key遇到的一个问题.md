@@ -16,5 +16,22 @@ Xxx.map((key)=>(<div key={key}></div>))
 联系之前key的作用我们可以得出一个结论，因为这里的key使得组件被即使销毁替换（即使video没有渲染好），但你不加key要等到video渲染好才上屏（可以类比看出video是有状态的，但开始渲染并不会主动更新），因此我们可以得出一个结论，即使我们没有使用map，但组件通过setState或者props进行重复切换渲染时，尤其是像video标签这种，资源加载完成后才渲染的组件，最好加上key，使得他资源更新时组件即可销毁
 
 在浏览器中，``<video>`` 元素和 ``<audio>`` 元素都是动态加载的，这意味着它们是在资源加载完成后才更新的。
+因此在有视频切换时，我们尽量去使用组件去渲染，而不是去修改video的s中的地址
+```javascript
+const images = useMemo(
+    () => [
+      ...SIDE_LIST.flatMap(({ selected, unSelect }) => [selected, unSelect]),
+      ...VIRTUAL_PERSONALIZE_MAP.hair.matchList.flatMap(({ displayMan, displayWoman }) => [displayMan, displayWoman]),
+      ...VIRTUAL_PERSONALIZE_MAP.face.matchList.flatMap(({ displayMan, displayWoman }) => [displayMan, displayWoman]),
+      ...VIRTUAL_PERSONALIZE_MAP.cloth.matchList.flatMap(({ displayMan, displayWoman }) => [displayMan, displayWoman]),
+    ],
+    []
+  );
+  useImagePreload({
+    images,
+    trigger: !!isInViewport, // 判断当前元素是否在视窗内
+  });
+
+```
 
 ---
