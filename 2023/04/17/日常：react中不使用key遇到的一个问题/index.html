@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>日常：react中不使用key遇到的一个问题 | bryceyxwangs Record</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="今天遇到个key值的问题，我们一般给组件加key是这样 1Xxx.map((key)&#x3D;&gt;(&lt;div key&#x3D;&amp;#123;key&amp;#125;&gt;&lt;&#x2F;div&gt;)) 最外层组件加key，用于react的diff算法优化性能。但是现在这个VideoBox是我自己封装的自定义组件没有map，所以一般代码提示不会提示你加key 当我没有给组件添加key时，再切换这个videoBox">
+<meta property="og:type" content="article">
+<meta property="og:title" content="日常：react中不使用key遇到的一个问题">
+<meta property="og:url" content="http://example.com/2023/04/17/%E6%97%A5%E5%B8%B8%EF%BC%9Areact%E4%B8%AD%E4%B8%8D%E4%BD%BF%E7%94%A8key%E9%81%87%E5%88%B0%E7%9A%84%E4%B8%80%E4%B8%AA%E9%97%AE%E9%A2%98/index.html">
+<meta property="og:site_name" content="bryceyxwangs Record">
+<meta property="og:description" content="今天遇到个key值的问题，我们一般给组件加key是这样 1Xxx.map((key)&#x3D;&gt;(&lt;div key&#x3D;&amp;#123;key&amp;#125;&gt;&lt;&#x2F;div&gt;)) 最外层组件加key，用于react的diff算法优化性能。但是现在这个VideoBox是我自己封装的自定义组件没有map，所以一般代码提示不会提示你加key 当我没有给组件添加key时，再切换这个videoBox">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/picture/20230418005129.png">
+<meta property="article:published_time" content="2023-04-17T15:42:55.000Z">
+<meta property="article:modified_time" content="2023-04-28T02:36:02.272Z">
+<meta property="article:author" content="bryceyxwangs">
+<meta property="article:tag" content="每日思考&amp;问题记录">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/picture/20230418005129.png">
+  
+    <link rel="alternate" href="/atom.xml" title="bryceyxwangs Record" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">bryceyxwangs Record</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-日常：react中不使用key遇到的一个问题" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2023/04/17/%E6%97%A5%E5%B8%B8%EF%BC%9Areact%E4%B8%AD%E4%B8%8D%E4%BD%BF%E7%94%A8key%E9%81%87%E5%88%B0%E7%9A%84%E4%B8%80%E4%B8%AA%E9%97%AE%E9%A2%98/" class="article-date">
+  <time class="dt-published" datetime="2023-04-17T15:42:55.000Z" itemprop="datePublished">2023-04-17</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      日常：react中不使用key遇到的一个问题
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>今天遇到个key值的问题，我们一般给组件加key是这样</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Xxx.map((key)=&gt;(&lt;div key=&#123;key&#125;&gt;&lt;/div&gt;))</span><br></pre></td></tr></table></figure>
+<p>最外层组件加key，用于react的diff算法优化性能。但是现在这个VideoBox是我自己封装的自定义组件没有map，所以一般代码提示不会提示你加key<br><img src="/picture/20230418005129.png" alt="组件截图"></p>
+<p>当我没有给组件添加key时，再切换这个videoBox时出现了一定的延时，之前的组件没有被销毁，而是在video加载后才出现的，<br>联系之前key的作用我们可以得出一个结论，因为这里的key使得组件被即使销毁替换（即使video没有渲染好），但你不加key要等到video渲染好才上屏（可以类比看出video是有状态的，但开始渲染并不会主动更新），因此我们可以得出一个结论，即使我们没有使用map，但组件通过setState或者props进行重复切换渲染时，尤其是像video标签这种，资源加载完成后才渲染的组件，最好加上key，使得他资源更新时组件即可销毁</p>
+<p>在浏览器中，<code>&lt;video&gt;</code> 元素和 <code>&lt;audio&gt;</code> 元素都是动态加载的，这意味着它们是在资源加载完成后才更新的。<br>因此在有视频切换时，我们尽量去使用组件去渲染，而不是去修改video的s中的地址</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> images = <span class="title function_">useMemo</span>(</span><br><span class="line">    <span class="function">() =&gt;</span> [</span><br><span class="line">      ...<span class="variable constant_">SIDE_LIST</span>.<span class="title function_">flatMap</span>(<span class="function">(<span class="params">&#123; selected, unSelect &#125;</span>) =&gt;</span> [selected, unSelect]),</span><br><span class="line">      ...<span class="variable constant_">VIRTUAL_PERSONALIZE_MAP</span>.<span class="property">hair</span>.<span class="property">matchList</span>.<span class="title function_">flatMap</span>(<span class="function">(<span class="params">&#123; displayMan, displayWoman &#125;</span>) =&gt;</span> [displayMan, displayWoman]),</span><br><span class="line">      ...<span class="variable constant_">VIRTUAL_PERSONALIZE_MAP</span>.<span class="property">face</span>.<span class="property">matchList</span>.<span class="title function_">flatMap</span>(<span class="function">(<span class="params">&#123; displayMan, displayWoman &#125;</span>) =&gt;</span> [displayMan, displayWoman]),</span><br><span class="line">      ...<span class="variable constant_">VIRTUAL_PERSONALIZE_MAP</span>.<span class="property">cloth</span>.<span class="property">matchList</span>.<span class="title function_">flatMap</span>(<span class="function">(<span class="params">&#123; displayMan, displayWoman &#125;</span>) =&gt;</span> [displayMan, displayWoman]),</span><br><span class="line">    ],</span><br><span class="line">    []</span><br><span class="line">  );</span><br><span class="line">  <span class="title function_">useImagePreload</span>(&#123;</span><br><span class="line">    images,</span><br><span class="line">    <span class="attr">trigger</span>: !!isInViewport, <span class="comment">// 判断当前元素是否在视窗内</span></span><br><span class="line">  &#125;);</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<hr>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2023/04/17/%E6%97%A5%E5%B8%B8%EF%BC%9Areact%E4%B8%AD%E4%B8%8D%E4%BD%BF%E7%94%A8key%E9%81%87%E5%88%B0%E7%9A%84%E4%B8%80%E4%B8%AA%E9%97%AE%E9%A2%98/" data-id="clhbczieg0006becm47ds5aov" data-title="日常：react中不使用key遇到的一个问题" class="article-share-link">分享</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%AF%8F%E6%97%A5%E6%80%9D%E8%80%83-%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95/" rel="tag">每日思考&amp;问题记录</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2023/04/18/%E6%97%A5%E5%B8%B8%EF%BC%9Amonorepo%E4%B8%AD%E4%BD%BF%E7%94%A8changeset%E8%BF%9B%E8%A1%8C%E5%A4%9A%E5%8C%85%E7%9A%84%E7%AE%A1%E7%90%86/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          日常：monorepo中使用changeset进行多包的管理
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2023/04/17/hello-world/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">Hello World</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B7%A5%E4%BD%9C%E4%B8%AD%E7%9A%84%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag">工作中的设计模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AF%8F%E6%97%A5%E6%80%9D%E8%80%83-%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95/" rel="tag">每日思考&amp;问题记录</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/%E5%B7%A5%E4%BD%9C%E4%B8%AD%E7%9A%84%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 10px;">工作中的设计模式</a> <a href="/tags/%E6%AF%8F%E6%97%A5%E6%80%9D%E8%80%83-%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95/" style="font-size: 20px;">每日思考&问题记录</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">五月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">四月 2023</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2023/05/05/vite/">vite</a>
+          </li>
+        
+          <li>
+            <a href="/2023/04/28/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a>
+          </li>
+        
+          <li>
+            <a href="/2023/04/24/%E5%9B%BE%E7%89%87%E9%A2%84%E5%8A%A0%E8%BD%BD/">图片预加载</a>
+          </li>
+        
+          <li>
+            <a href="/2023/04/23/%E6%97%A5%E5%B8%B8%EF%BC%9A%E5%9F%8B%E7%82%B9%E7%9A%84%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%80%83/">日常：业务埋点的设计和思考</a>
+          </li>
+        
+          <li>
+            <a href="/2023/04/21/%E6%97%A5%E5%B8%B8%EF%BC%9Aci-cd/">日常：ci/cd</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2023 bryceyxwangs<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

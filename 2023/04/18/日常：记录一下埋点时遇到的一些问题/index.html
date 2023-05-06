@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>日常：记录一下埋点时遇到的一些问题 | bryceyxwangs Record</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="今天在埋点时Ued那边有一个需求，是记录这个按钮在用户视窗内展示了多长时间，但细想似乎不太对劲，如果用户一直停留怎么计算。在调研后发现他们可能真正需要的不是这个曝光时间，而是所谓的曝光率,而需要曝光率就牵扯到一种方案叫做自动曝光 何谓自动曝光？自动曝光是指按照埋点规范在页面上进行一个简单的声明式埋点，第三方采集SDK会根据埋点信息自动的采集元素曝光信息的一种方式。 如下图，页面滑动过程中A、B、C">
+<meta property="og:type" content="article">
+<meta property="og:title" content="日常：记录一下埋点时遇到的一些问题">
+<meta property="og:url" content="http://example.com/2023/04/18/%E6%97%A5%E5%B8%B8%EF%BC%9A%E8%AE%B0%E5%BD%95%E4%B8%80%E4%B8%8B%E5%9F%8B%E7%82%B9%E6%97%B6%E9%81%87%E5%88%B0%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/index.html">
+<meta property="og:site_name" content="bryceyxwangs Record">
+<meta property="og:description" content="今天在埋点时Ued那边有一个需求，是记录这个按钮在用户视窗内展示了多长时间，但细想似乎不太对劲，如果用户一直停留怎么计算。在调研后发现他们可能真正需要的不是这个曝光时间，而是所谓的曝光率,而需要曝光率就牵扯到一种方案叫做自动曝光 何谓自动曝光？自动曝光是指按照埋点规范在页面上进行一个简单的声明式埋点，第三方采集SDK会根据埋点信息自动的采集元素曝光信息的一种方式。 如下图，页面滑动过程中A、B、C">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/picture/20230418233718.jpg">
+<meta property="article:published_time" content="2023-04-18T15:32:32.000Z">
+<meta property="article:modified_time" content="2023-04-21T10:52:34.771Z">
+<meta property="article:author" content="bryceyxwangs">
+<meta property="article:tag" content="每日思考&amp;问题记录">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/picture/20230418233718.jpg">
+  
+    <link rel="alternate" href="/atom.xml" title="bryceyxwangs Record" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">bryceyxwangs Record</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-日常：记录一下埋点时遇到的一些问题" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2023/04/18/%E6%97%A5%E5%B8%B8%EF%BC%9A%E8%AE%B0%E5%BD%95%E4%B8%80%E4%B8%8B%E5%9F%8B%E7%82%B9%E6%97%B6%E9%81%87%E5%88%B0%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/" class="article-date">
+  <time class="dt-published" datetime="2023-04-18T15:32:32.000Z" itemprop="datePublished">2023-04-18</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      日常：记录一下埋点时遇到的一些问题
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>今天在埋点时Ued那边有一个需求，是记录这个按钮在用户视窗内展示了多长时间，但细想似乎不太对劲，如果用户一直停留怎么计算。在调研后发现他们可能真正需要的不是这个曝光时间，而是所谓的曝光率,而需要曝光率就牵扯到一种方案叫做自动曝光</p>
+<h2 id="何谓自动曝光？"><a href="#何谓自动曝光？" class="headerlink" title="何谓自动曝光？"></a>何谓自动曝光？</h2><p>自动曝光是指按照埋点规范在页面上进行一个简单的声明式埋点，第三方采集SDK会根据埋点信息自动的采集元素曝光信息的一种方式。 如下图，页面滑动过程中A、B、C、D模块出现在视口内采集SDK会自动上报埋点日志：<br><img src="/picture/20230418233718.jpg" alt="自动曝光"></p>
+<p>自动曝光<br>1、一般而言产品上会要求页面上某个模块一定面积连续一段时间出现在视口才是有效曝光（这边ued决定采用65%、300ms）<br>2、性能，几乎所有的第三方采集平台都会在曝光埋点的说明文档里注明：“请不要配置过多的曝光埋点，这会严重影响你的页面性能”</p>
+<p>接下来发现有个问题，如果用户回滑的话是否计数呢？还是说进入这一次页面只计算一次呢？前者叫点击率，后者称为曝光率</p>
+<h2 id="何谓点击率？"><a href="#何谓点击率？" class="headerlink" title="何谓点击率？"></a>何谓点击率？</h2><p>一般点击率的计算公式如下所示：<strong>CTR&#x3D;点击数&#x2F;曝光数</strong></p>
+<h2 id="曝光率"><a href="#曝光率" class="headerlink" title="曝光率"></a>曝光率</h2><p><strong>曝光率 &#x3D; 曝光数&#x2F;pv量</strong><br>认真思考会发现，曝光数回滑会计算，所以这里要做特殊处理进入一次页面到位置只记录一次曝光，如果不做特殊处理其实就没与曝光率这个概念了，具体还是看需求</p>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>这时候就需要ued那边做出选择，那边最后选择了曝光率理由是，计算点击率是由按钮的位置来决定的，比如在顶部很好的位置这个时候可能需要的是点击率，而不会计算曝光率，或者是高频的按钮，我们的业务埋点是在区域，只是想有多少人愿意滑到顶部，顺便算一下多少人愿意点击，在这次需求中存在一种优先级，最后选了曝光率</p>
+<hr>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2023/04/18/%E6%97%A5%E5%B8%B8%EF%BC%9A%E8%AE%B0%E5%BD%95%E4%B8%80%E4%B8%8B%E5%9F%8B%E7%82%B9%E6%97%B6%E9%81%87%E5%88%B0%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/" data-id="clhbcziej000bbecm6j192jg2" data-title="日常：记录一下埋点时遇到的一些问题" class="article-share-link">分享</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%AF%8F%E6%97%A5%E6%80%9D%E8%80%83-%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95/" rel="tag">每日思考&amp;问题记录</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2023/04/21/%E6%97%A5%E5%B8%B8%EF%BC%9Aci-cd/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          日常：ci/cd
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2023/04/18/%E6%97%A5%E5%B8%B8%EF%BC%9Amonorepo%E4%B8%AD%E4%BD%BF%E7%94%A8changeset%E8%BF%9B%E8%A1%8C%E5%A4%9A%E5%8C%85%E7%9A%84%E7%AE%A1%E7%90%86/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">日常：monorepo中使用changeset进行多包的管理</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B7%A5%E4%BD%9C%E4%B8%AD%E7%9A%84%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag">工作中的设计模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AF%8F%E6%97%A5%E6%80%9D%E8%80%83-%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95/" rel="tag">每日思考&amp;问题记录</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/%E5%B7%A5%E4%BD%9C%E4%B8%AD%E7%9A%84%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 10px;">工作中的设计模式</a> <a href="/tags/%E6%AF%8F%E6%97%A5%E6%80%9D%E8%80%83-%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95/" style="font-size: 20px;">每日思考&问题记录</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">五月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">四月 2023</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2023/05/05/vite/">vite</a>
+          </li>
+        
+          <li>
+            <a href="/2023/04/28/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a>
+          </li>
+        
+          <li>
+            <a href="/2023/04/24/%E5%9B%BE%E7%89%87%E9%A2%84%E5%8A%A0%E8%BD%BD/">图片预加载</a>
+          </li>
+        
+          <li>
+            <a href="/2023/04/23/%E6%97%A5%E5%B8%B8%EF%BC%9A%E5%9F%8B%E7%82%B9%E7%9A%84%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%80%83/">日常：业务埋点的设计和思考</a>
+          </li>
+        
+          <li>
+            <a href="/2023/04/21/%E6%97%A5%E5%B8%B8%EF%BC%9Aci-cd/">日常：ci/cd</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2023 bryceyxwangs<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

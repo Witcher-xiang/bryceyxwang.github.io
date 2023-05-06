@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>日常：业务埋点的设计和思考 | bryceyxwangs Record</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="这次我负责将埋点接入到我们的业务，我是这么做的：所有的埋点字段由 ued 提供-》我维护一个大枚举，将 excel 表中的枚举写入-》然后再维护一个业务 Map，业务 Map 中的 key 值构成比较复杂，可能是路由，也可能是某些业务中存在枚举的 key，他的目的是为了方便直接从业务中取得埋点字段的类型，但是在有了两层 Map 的情况下又不可避免的出现了第三种 map 第三种 map 的原因：首先">
+<meta property="og:type" content="article">
+<meta property="og:title" content="日常：业务埋点的设计和思考">
+<meta property="og:url" content="http://example.com/2023/04/23/%E6%97%A5%E5%B8%B8%EF%BC%9A%E5%9F%8B%E7%82%B9%E7%9A%84%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%80%83/index.html">
+<meta property="og:site_name" content="bryceyxwangs Record">
+<meta property="og:description" content="这次我负责将埋点接入到我们的业务，我是这么做的：所有的埋点字段由 ued 提供-》我维护一个大枚举，将 excel 表中的枚举写入-》然后再维护一个业务 Map，业务 Map 中的 key 值构成比较复杂，可能是路由，也可能是某些业务中存在枚举的 key，他的目的是为了方便直接从业务中取得埋点字段的类型，但是在有了两层 Map 的情况下又不可避免的出现了第三种 map 第三种 map 的原因：首先">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/picture/20230423.png">
+<meta property="article:published_time" content="2023-04-23T11:52:19.000Z">
+<meta property="article:modified_time" content="2023-05-06T02:50:38.536Z">
+<meta property="article:author" content="bryceyxwangs">
+<meta property="article:tag" content="每日思考&amp;问题记录">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/picture/20230423.png">
+  
+    <link rel="alternate" href="/atom.xml" title="bryceyxwangs Record" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">bryceyxwangs Record</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-日常：埋点的设计思考" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2023/04/23/%E6%97%A5%E5%B8%B8%EF%BC%9A%E5%9F%8B%E7%82%B9%E7%9A%84%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%80%83/" class="article-date">
+  <time class="dt-published" datetime="2023-04-23T11:52:19.000Z" itemprop="datePublished">2023-04-23</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      日常：业务埋点的设计和思考
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>这次我负责将埋点接入到我们的业务，我是这么做的：<br>所有的埋点字段由 ued 提供-》我维护一个大枚举，将 excel 表中的枚举写入-》然后再维护一个业务 Map，业务 Map 中的 key 值构成比较复杂，可能是路由，也可能是某些业务中存在枚举的 key，他的目的是为了方便直接从业务中取得埋点字段的类型，但是在有了两层 Map 的情况下又不可避免的出现了第三种 map</p>
+<p>第三种 map 的原因：<br>首先每个埋点的值都是唯一的，但是有一个组件，完全相同的组件使用在不同的页面，每个页面的埋点都是不一样的，因此我需要新建立一个和之前第二层 Map 不同的数据结构来存储</p>
+<p>这个方案给同事听了之后说多增加第一层维护 Map 的成本，这个应该交给平台，他应该存在一个接口，可以返回所有的已经配置好的埋点，而不是我手动去维护第一层的 Map<br><img src="/picture/20230423.png" alt="组件截图"></p>
+<p>如此设计虽然我写的时候很舒服，但是多一层抽象就带来很高的维护成本，<strong>*后来者学习重新学习一遍你的流程</strong>，像是埋点这种很通用的，应该就给一个发送出去不应该构建更高级的抽象<br>这难免让我思考一个问题，何时抽象，何时不抽象</p>
+<h3 id="1、抽象的好处-gt-耦合的后果"><a href="#1、抽象的好处-gt-耦合的后果" class="headerlink" title="1、抽象的好处&gt;耦合的后果"></a>1、抽象的好处&gt;耦合的后果</h3><p>这个视频提到了这个观点<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1TT411m7Ny/?spm_id_from=333.880.my_history.page.click">视频</a>。抽象并非百利而无一害，作者观点说抽象越高你的耦合就会越高，其实我觉得可以理解为过度抽象化带来的可维护性变差增加复杂性和开发时间</p>
+<h3 id="2、抽象-x3D-提取重复的代码"><a href="#2、抽象-x3D-提取重复的代码" class="headerlink" title="2、抽象 !&#x3D; 提取重复的代码"></a>2、抽象 !&#x3D; 提取重复的代码</h3><p>需要甄别重复代码，真的是因为他们是一套设计机制，还是因为仅仅是重复代码才做抽象，其实理解开来还是可维护性，未来是代码否增加拓展</p>
+<h3 id="3、项目规模和共通认识"><a href="#3、项目规模和共通认识" class="headerlink" title="3、项目规模和共通认识"></a>3、项目规模和共通认识</h3><p>如果是一个大型项目，合理的抽象可以帮助团队协作和代码的可维护性。在小型项目中，尤其是在埋点这种有一定共同性的设计中，要避免不必要的抽象，确保抽象的实施有实际的好处。</p>
+<p>总结：<br>我们把这几个观点抽象化就是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">重复代码：如果发现某些代码片段在多个地方重复出现，可以考虑将其抽象为一个函数或组件以提高复用性。</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">可读性：如果代码段过于复杂，抽象成一个函数或组件可以提高可读性和维护性。</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">项目规模：如果是一个大型项目，合理的抽象可以帮助团队协作和代码的可维护性。</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">预测变化：如果预期某些功能可能发生变化，适当的抽象有助于减少对整体代码的影响。</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">避免过度抽象：过度抽象可能导致难以理解的代码结构，尤其是在小型项目中。要避免不必要的抽象，确保抽象的实施有实际的好处。</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2023/04/23/%E6%97%A5%E5%B8%B8%EF%BC%9A%E5%9F%8B%E7%82%B9%E7%9A%84%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%80%83/" data-id="clhbd0qt9000lbecmf6r2c6gh" data-title="日常：业务埋点的设计和思考" class="article-share-link">分享</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%AF%8F%E6%97%A5%E6%80%9D%E8%80%83-%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95/" rel="tag">每日思考&amp;问题记录</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2023/04/24/%E5%9B%BE%E7%89%87%E9%A2%84%E5%8A%A0%E8%BD%BD/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          图片预加载
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2023/04/21/%E6%97%A5%E5%B8%B8%EF%BC%9Aci-cd/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">日常：ci/cd</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B7%A5%E4%BD%9C%E4%B8%AD%E7%9A%84%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag">工作中的设计模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AF%8F%E6%97%A5%E6%80%9D%E8%80%83-%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95/" rel="tag">每日思考&amp;问题记录</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/%E5%B7%A5%E4%BD%9C%E4%B8%AD%E7%9A%84%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 10px;">工作中的设计模式</a> <a href="/tags/%E6%AF%8F%E6%97%A5%E6%80%9D%E8%80%83-%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95/" style="font-size: 20px;">每日思考&问题记录</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">五月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">四月 2023</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2023/05/05/vite/">vite</a>
+          </li>
+        
+          <li>
+            <a href="/2023/04/28/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a>
+          </li>
+        
+          <li>
+            <a href="/2023/04/24/%E5%9B%BE%E7%89%87%E9%A2%84%E5%8A%A0%E8%BD%BD/">图片预加载</a>
+          </li>
+        
+          <li>
+            <a href="/2023/04/23/%E6%97%A5%E5%B8%B8%EF%BC%9A%E5%9F%8B%E7%82%B9%E7%9A%84%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%80%83/">日常：业务埋点的设计和思考</a>
+          </li>
+        
+          <li>
+            <a href="/2023/04/21/%E6%97%A5%E5%B8%B8%EF%BC%9Aci-cd/">日常：ci/cd</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2023 bryceyxwangs<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

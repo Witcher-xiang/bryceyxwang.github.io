@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>日常：ci/cd | bryceyxwangs Record</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="CI&#x2F;CDCI：持续部署 CD：持续集成 CI: 通过质测平台进行监控，当检测到配置的目标仓库有变动时（Merge后），就会执行你配置好的shell脚本，比如yarn run docker，帮你打包构建镜像然后推到目标镜像位置，到此步 我们还差让镜像自动重启 对于我们使用的monenrepo的处理是写判断语句，挨个执行，如下 12345678910yarn installif [ $ta">
+<meta property="og:type" content="article">
+<meta property="og:title" content="日常：ci&#x2F;cd">
+<meta property="og:url" content="http://example.com/2023/04/21/%E6%97%A5%E5%B8%B8%EF%BC%9Aci-cd/index.html">
+<meta property="og:site_name" content="bryceyxwangs Record">
+<meta property="og:description" content="CI&#x2F;CDCI：持续部署 CD：持续集成 CI: 通过质测平台进行监控，当检测到配置的目标仓库有变动时（Merge后），就会执行你配置好的shell脚本，比如yarn run docker，帮你打包构建镜像然后推到目标镜像位置，到此步 我们还差让镜像自动重启 对于我们使用的monenrepo的处理是写判断语句，挨个执行，如下 12345678910yarn installif [ $ta">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-04-21T15:13:42.000Z">
+<meta property="article:modified_time" content="2023-04-28T02:36:02.270Z">
+<meta property="article:author" content="bryceyxwangs">
+<meta property="article:tag" content="每日思考&amp;问题记录">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="bryceyxwangs Record" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-source-code-pro@0.0.71/index.min.css">
+
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">bryceyxwangs Record</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS 订阅"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="搜索"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-日常：ci-cd" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2023/04/21/%E6%97%A5%E5%B8%B8%EF%BC%9Aci-cd/" class="article-date">
+  <time class="dt-published" datetime="2023-04-21T15:13:42.000Z" itemprop="datePublished">2023-04-21</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      日常：ci/cd
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h3 id="CI-x2F-CD"><a href="#CI-x2F-CD" class="headerlink" title="CI&#x2F;CD"></a>CI&#x2F;CD</h3><p>CI：持续部署</p>
+<p>CD：持续集成</p>
+<p>CI: 通过质测平台进行监控，当检测到配置的目标仓库有变动时（Merge后），就会执行你配置好的shell脚本，比如yarn run docker，帮你打包构建镜像然后推到目标镜像位置，到此步 我们还差让镜像自动重启</p>
+<p>对于我们使用的monenrepo的处理是写判断语句，挨个执行，如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">yarn install</span><br><span class="line">if [ $targetBranch = $devMain ]</span><br><span class="line">then</span><br><span class="line">    echo &quot;是devMain环境&quot;</span><br><span class="line">    yarn run docker:admin dev</span><br><span class="line">  yarn run docker:xxx dev</span><br><span class="line">  yarn run docker:xxx dev</span><br><span class="line">  yarn run docker:xxx dev</span><br><span class="line">  yarn run docker:xxx dev</span><br><span class="line">elif [ $targetBranch = $qaMain ]</span><br></pre></td></tr></table></figure>
+<p>但这样的坏处如果只有一台机子就会很很慢</p>
+<p>CD：<br>也在质测平台中，叫持续部署<br>首先选择项目，输入应用名，代码仓库和分支名称，以及部署的镜像名称，他会监控是否有镜像推送有的话就自动重启</p>
+<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><p>CI+CD &#x3D; 代码merge后-》打镜像 -》 镜像推送</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2023/04/21/%E6%97%A5%E5%B8%B8%EF%BC%9Aci-cd/" data-id="clhbczied0004becmhz1p44ks" data-title="日常：ci/cd" class="article-share-link">分享</a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E6%AF%8F%E6%97%A5%E6%80%9D%E8%80%83-%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95/" rel="tag">每日思考&amp;问题记录</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2023/04/23/%E6%97%A5%E5%B8%B8%EF%BC%9A%E5%9F%8B%E7%82%B9%E7%9A%84%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%80%83/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          日常：业务埋点的设计和思考
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2023/04/18/%E6%97%A5%E5%B8%B8%EF%BC%9A%E8%AE%B0%E5%BD%95%E4%B8%80%E4%B8%8B%E5%9F%8B%E7%82%B9%E6%97%B6%E9%81%87%E5%88%B0%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">日常：记录一下埋点时遇到的一些问题</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%B7%A5%E4%BD%9C%E4%B8%AD%E7%9A%84%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag">工作中的设计模式</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AF%8F%E6%97%A5%E6%80%9D%E8%80%83-%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95/" rel="tag">每日思考&amp;问题记录</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/%E5%B7%A5%E4%BD%9C%E4%B8%AD%E7%9A%84%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 10px;">工作中的设计模式</a> <a href="/tags/%E6%AF%8F%E6%97%A5%E6%80%9D%E8%80%83-%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95/" style="font-size: 20px;">每日思考&问题记录</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/05/">五月 2023</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2023/04/">四月 2023</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2023/05/05/vite/">vite</a>
+          </li>
+        
+          <li>
+            <a href="/2023/04/28/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a>
+          </li>
+        
+          <li>
+            <a href="/2023/04/24/%E5%9B%BE%E7%89%87%E9%A2%84%E5%8A%A0%E8%BD%BD/">图片预加载</a>
+          </li>
+        
+          <li>
+            <a href="/2023/04/23/%E6%97%A5%E5%B8%B8%EF%BC%9A%E5%9F%8B%E7%82%B9%E7%9A%84%E8%AE%BE%E8%AE%A1%E6%80%9D%E8%80%83/">日常：业务埋点的设计和思考</a>
+          </li>
+        
+          <li>
+            <a href="/2023/04/21/%E6%97%A5%E5%B8%B8%EF%BC%9Aci-cd/">日常：ci/cd</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2023 bryceyxwangs<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.4.1.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
